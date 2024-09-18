@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User{
+  id        Int     @id @default(autoincrement())
+  name      String
+  email     String
+  password  String
+}
+
+model Zap{
+  id         String @id @default(uuid())
+  triggerId  String
+  trigger    Trigger?
+  actions    Action[]
+  ZapsRun    ZapRun[]
+}
+
+
+//Relationships
+// To the Zap Model:
+
+// Relation: One-to-One (due to the @unique attribute on zapId)
+// Details: Each Trigger is associated with exactly one Zap. The zapId field in the Trigger model creates a one-to-one relationship, meaning that a single Zap can only have one associated trigger.
+// To the AvailableTriggers Model:
+
+// Relation: Many-to-One
+// Details: Each Trigger is associated with one type of available trigger. Multiple triggers can use the same trigger type, but each trigger type can be used by multiple triggers. The triggerId field in the Trigger model establishes this relationship.
+model Trigger{
+  id         String @id @default(uuid())
+  zapId      String @unique
+  triggerId  String
+  type       AvailableTriggers @relation(fields: [triggerId],references: [id])
+  zap        Zap               @relation(fields: [zapId],references: [id])
+}
+
+
+//Relationships
+// To the Zap Model:
+
+// Relation: Many-to-one
+// Details: Each Action is associated with a single Zap. Multiple actions can be linked to one Zap, but each action can only belong to one Zap.
+// To the AvailableAction Model:
+
+// Relation: Many-to-one
+// Details: Each Action is associated with one available action type. Multiple actions can use the same action type, but each action type can be used by multiple actions.
+
+model Action{
+  id         String @id @default(uuid())
+  zapId      String // A foreign key that links this action to a specific Zap. 
+                    // This field connects the action to the Zap it belongs to
+  zap        Zap    @relation(fields: [zapId],references: [id]) //: This defines the relationship between the Action model and the Zap model. 
+                                                                //  It creates a many-to-one relationship where each action is associated with one Zap. 
+                                                                //  The zapId field is used to establish this relationship, and it references the id field in the Zap model.
+  actionId   String
+  type       AvailableAction @relation(fields: [actionId],references: [id])
+}
+
+model AvailableAction{
+  id         String  @id @default(uuid())
+  name       String
+  actions    Action[]
+}
+
+model AvailableTriggers{
+  id         String  @id @default(uuid())
+  name       String
+  triggers   Trigger[]
+}
+
+// The ZapRun model is designed to represent each execution instance of a Zap.
+// Whenever a Zap is triggered, a new ZapRun entry is created to track this specific execution.
+model ZapRun{
+  id        String   @id @default(uuid())
+  ZapId     String//ZapId: Associates the run with a specific Zap. 
+                  //This establishes a many-to-one relationship where multiple ZapRun entries can be linked to a single Zap.
+  metadata   Json
+  Zap       Zap @relation(fields: [ZapId],references: [id])
+  ZapRunOutbox  ZapRunOutbOx?
+}
+
+model ZapRunOutbOx{
+  id        String @id @default(uuid())
+  zapRunId  String @unique
+  ZapRun    ZapRun @relation(fields: [zapRunId],references: [id])
+}
+
+

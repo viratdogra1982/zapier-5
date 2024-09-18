@@ -1,0 +1,97 @@
+(ques)-WHAT IS ZAP?
+(ANS) - A Zap is an automated workflow created in Zapier that connects different apps and services.
+        It consists of a trigger and one or more actions. The trigger starts the Zap, and the actions
+
+
+(ques)-WHAT IS WEBHOOK IN ZAPIER?
+(ANS) -A webhook is a way for an app to provide other applications with real-time data. 
+       In Zapier, webhooks can be used as a trigger or an action.
+       When a webhook is triggered, it sends data to a specified URL, often a backend server.
+
+
+(ques)-WHAT IS TRIGGER?
+(ANS) -A Trigger is the event that starts a Zap
+
+      EXAMPLE-
+      (1)-The trigger is the event that occurs in GitHub, such as a new message being posted,
+           a new issue being created, or any other specified condition.
+
+      (2)- When the specified event happens in GitHub, it sends data to the Zapier webhook, which starts the Zap. 
+           This webhook acts as the trigger, initiating the entire process.
+
+
+(ques)-WHAT IS ACTION?
+(ANS) -An Action is what happens after the Zap is triggered.
+       It’s the task or series of tasks that Zapier performs automatically once the trigger occurs.
+
+       EXAMPLE-
+       (1)-The first action could be sending the data received from GitHub (via the webhook) to your backend server.
+       (2)-The backend then processes the data, stores it in a database, and forwards it to a Kafka queue.
+       (3)-Additional actions could include processing the data from the Kafka queue and updating the database or performing any other tasks as needed.
+
+
+      HOW IT WORKS-After the trigger event occurs, the Zap performs one or more actions automatically. 
+      Each action is a step in the workflow, progressing toward the final outcome, 
+      such as updating the database or processing the data.
+
+
+(ques)-WHAT IS ZAPRUN?
+(ANS) -A Zap Run is an instance of a Zap being executed.
+       Every time the trigger event occurs, a new Zap Run starts, performing the actions specified in the Zap.
+
+
+       EXAMPLE-
+       (1)-Each time a new message is posted in GitHub (or another specified event occurs), a Zap Run is initiated.
+       (2)-The Zap Run follows the workflow you've set up:
+           it triggers the webhook, sends the data to your backend, processes it, and moves it through the Kafka queue.
+       (3)-Every execution of this workflow is considered a separate Zap Run.
+
+
+
+       HOW IT WORKS-Every time the trigger condition is met (like a new GitHub message), a Zap Run begins. 
+       It executes the actions you’ve configured,
+       ensuring that your workflow is automated and consistent each time the trigger event occurs.
+
+
+
+
+
+       WORKFLOW EXAMPLE-
+
+User Chooses a Zap:
+
+The user selects a Zap in Zapier, 
+which defines the trigger (e.g., "When a new message is posted in a GitHub repository") and the subsequent actions.
+
+Zap Creates a Webhook:
+
+The Zap sets up a webhook URL that will be triggered by the chosen event (e.g., a new message in GitHub).
+
+Webhook in GitHub:
+
+The user adds the Zapier webhook URL to GitHub. 
+This means that when the specified event occurs in GitHub (e.g., a new issue or message), 
+GitHub sends a POST request with the relevant data to the Zapier webhook.
+
+Webhook Triggers the Backend:
+
+When the webhook receives the data from GitHub,
+ Zapier can send that data to your backend (e.g., a Node.js/Express server) through another webhook or direct API call.
+
+Data Stored in Database:
+
+The backend processes the incoming data and stores it in a database (e.g., PostgreSQL).
+
+Data Sent to Kafka Queue:
+
+After storing the data, the backend sends it to a Kafka queue. 
+Kafka is a distributed streaming platform that can handle real-time data feeds.
+
+Processor Consumes from Kafka:
+
+A Kafka consumer (processor) then reads the data from the Kafka queue. 
+This consumer can be another microservice or application that processes the data further.
+
+Database Update:
+
+The processor may perform additional operations on the data and update the database with the processed information.
